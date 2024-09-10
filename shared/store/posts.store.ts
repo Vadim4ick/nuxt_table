@@ -17,6 +17,7 @@ export const usePostsStore = defineStore("posts", () => {
     loading.value = true;
     const response = await fetch(`https://jsonplaceholder.typicode.com/posts`);
     allPosts.value = await response.json();
+
     loading.value = false;
     sortAndPaginate();
   };
@@ -67,6 +68,8 @@ export const usePostsStore = defineStore("posts", () => {
     currentPage,
     isLastPage,
     fetchAllPosts,
+    allPosts,
+    postsPerPage,
     nextPage,
     prevPage,
     toggleSortOrder,

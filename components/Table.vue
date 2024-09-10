@@ -4,6 +4,36 @@ import { usePostsStore } from "~/shared/store/posts.store.ts";
 
 const postsStore = usePostsStore();
 
+const totalPages = computed(() => {
+  return postsStore.allPosts?.length
+    ? Math.ceil(postsStore.allPosts.length / postsStore.postsPerPage)
+    : 1;
+});
+
+// Функция для вычисления диапазона отображаемых страниц
+const getPageRange = computed(() => {
+  const total = totalPages.value;
+  const current = postsStore.currentPage;
+  const range = 5; // Количество страниц для отображения
+
+  let startPage = Math.max(1, current - 2);
+  let endPage = Math.min(total, current + 2);
+
+  // Корректировка диапазона если меньше 5 страниц
+  if (endPage - startPage < range - 1) {
+    if (startPage === 1) {
+      endPage = Math.min(total, startPage + range - 1);
+    } else {
+      startPage = Math.max(1, endPage - range + 1);
+    }
+  }
+
+  return Array.from(
+    { length: endPage - startPage + 1 },
+    (_, i) => startPage + i
+  );
+});
+
 onMounted(async () => {
   await postsStore.fetchAllPosts();
 });
@@ -64,7 +94,7 @@ onMounted(async () => {
         <!-- Пагинация с номерами страниц -->
         <div class="flex space-x-2">
           <button
-            v-for="page in 5"
+            v-for="page in getPageRange"
             :key="page"
             @click="postsStore.goToPage(page)"
             :class="[
