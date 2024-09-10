@@ -54,6 +54,36 @@ export const usePaginationStore = defineStore("pagination", () => {
     sortAndPaginate();
   };
 
+  const totalPages = computed(() => {
+    return postsStore.allPosts.length
+      ? Math.ceil(postsStore.allPosts.length / postsPerPage)
+      : 1;
+  });
+
+  // Функция для вычисления диапазона отображаемых страниц
+  const getPageRange = computed(() => {
+    const total = totalPages.value;
+    const current = currentPage;
+    const range = 5; // Количество страниц для отображения
+
+    let startPage = Math.max(1, current.value - 2);
+    let endPage = Math.min(total, current.value + 2);
+
+    // Корректировка диапазона если меньше 5 страниц
+    if (endPage - startPage < range - 1) {
+      if (startPage === 1) {
+        endPage = Math.min(total, startPage + range - 1);
+      } else {
+        startPage = Math.max(1, endPage - range + 1);
+      }
+    }
+
+    return Array.from(
+      { length: endPage - startPage + 1 },
+      (_, i) => startPage + i
+    );
+  });
+
   return {
     filtredPosts,
     currentPage,
@@ -65,5 +95,6 @@ export const usePaginationStore = defineStore("pagination", () => {
     sortAndPaginate,
     sortOrder,
     goToPage,
+    getPageRange,
   };
 });
