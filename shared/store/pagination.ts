@@ -32,6 +32,7 @@ export const usePaginationStore = defineStore("pagination", () => {
 
   const toggleSortOrder = () => {
     sortOrder.value = sortOrder.value === "asc" ? "desc" : "asc";
+    currentPage.value = 1;
     sortAndPaginate();
   };
 
