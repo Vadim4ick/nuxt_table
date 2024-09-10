@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import { usePostsStore } from "~/shared/store/posts.store.ts";
+import { usePostsStore } from "@/shared/store/posts";
 
 const postsStore = usePostsStore();
 
 const addPost = async () => {
   if (postsStore.newPost.title && postsStore.newPost.body) {
-    await postsStore.createPost(newPost.value);
+    await postsStore.createPost(postsStore.newPost);
     postsStore.newPost = { title: "", body: "" }; // Очистка формы
     postsStore.showModal = false; // Закрытие модального окна
   }
