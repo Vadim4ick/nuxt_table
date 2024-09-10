@@ -1,19 +1,23 @@
 <script setup lang="ts">
 import { onMounted } from "vue";
-import { usePostsStore } from "~/shared/store/posts";
+import { usePostsStore } from "@/shared/store/posts";
+import { useModalCreateStore } from "@/shared/store/modals";
+import { usePaginationStore } from "@/shared/store/pagination";
 
+const modalStore = useModalCreateStore();
 const postsStore = usePostsStore();
+const paginationStore = usePaginationStore();
 
 const totalPages = computed(() => {
   return postsStore.allPosts?.length
-    ? Math.ceil(postsStore.allPosts.length / postsStore.postsPerPage)
+    ? Math.ceil(postsStore.allPosts.length / paginationStore.postsPerPage)
     : 1;
 });
 
 // Функция для вычисления диапазона отображаемых страниц
 const getPageRange = computed(() => {
   const total = totalPages.value;
-  const current = postsStore.currentPage;
+  const current = paginationStore.currentPage;
   const range = 5; // Количество страниц для отображения
 
   let startPage = Math.max(1, current - 2);
@@ -42,7 +46,7 @@ onMounted(async () => {
 <template>
   <div class="container mx-auto px-4 py-6">
     <button
-      @click="postsStore.showModal = true"
+      @click="modalStore.showModal = true"
       class="bg-green-500 text-white ml-auto flex px-4 py-2 rounded mb-4"
     >
       Add New Post
@@ -55,10 +59,10 @@ onMounted(async () => {
             <th
               class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
               style="width: 5%"
-              @click="postsStore.toggleSortOrder"
+              @click="paginationStore.toggleSortOrder"
             >
               ID
-              <span v-if="postsStore.sortOrder === 'asc'">▲</span>
+              <span v-if="paginationStore.sortOrder === 'asc'">▲</span>
               <span v-else>▼</span>
             </th>
             <th
@@ -76,7 +80,7 @@ onMounted(async () => {
           </tr>
         </thead>
         <tbody class="bg-white divide-y divide-gray-200">
-          <tr v-for="post in postsStore.posts" :key="post.id">
+          <tr v-for="post in paginationStore.filtredPosts" :key="post.id">
             <td class="px-6 py-4 text-sm font-medium text-gray-900">
               {{ post.id }}
             </td>
@@ -91,8 +95,8 @@ onMounted(async () => {
       </table>
       <div class="mt-4 flex justify-between px-6 pb-6">
         <button
-          @click="postsStore.prevPage"
-          :disabled="postsStore.currentPage === 1"
+          @click="paginationStore.prevPage"
+          :disabled="paginationStore.currentPage === 1"
           class="bg-blue-500 text-white px-4 py-2 rounded disabled:opacity-50"
         >
           Previous
@@ -103,10 +107,10 @@ onMounted(async () => {
           <button
             v-for="page in getPageRange"
             :key="page"
-            @click="postsStore.goToPage(page)"
+            @click="paginationStore.goToPage(page)"
             :class="[
               'px-4 py-2 rounded',
-              postsStore.currentPage === page
+              paginationStore.currentPage === page
                 ? 'bg-blue-700 text-white'
                 : 'bg-blue-500 text-white',
             ]"
@@ -116,8 +120,8 @@ onMounted(async () => {
         </div>
 
         <button
-          @click="postsStore.nextPage"
-          :disabled="postsStore.isLastPage"
+          @click="paginationStore.nextPage"
+          :disabled="paginationStore.isLastPage"
           class="bg-blue-500 text-white px-4 py-2 rounded disabled:opacity-50"
         >
           Next

@@ -1,21 +1,14 @@
 import { defineStore } from "pinia";
 import { ref } from "vue";
-import type { Post, Sort } from "../types";
+import type { Post } from "../types";
+import { usePaginationStore } from "./pagination";
 
 export const usePostsStore = defineStore("posts", () => {
+  const paginationStore = usePaginationStore();
+
   const allPosts = ref<Post[]>([]);
-  const posts = ref<Post[]>([]);
-
-  // Состояние для модального окна
-  const showModal = ref(false);
-  const newPost = ref<{ title: string; body: string }>({ title: "", body: "" });
-
-  const currentPage = ref(1);
-  const postsPerPage = 10;
 
   const loading = ref(false);
-  const sortOrder = ref<Sort>("asc");
-  const isLastPage = ref(false);
 
   const fetchAllPosts = async () => {
     loading.value = true;
@@ -23,47 +16,7 @@ export const usePostsStore = defineStore("posts", () => {
     allPosts.value = await response.json();
 
     loading.value = false;
-    sortAndPaginate();
-  };
-
-  const sortAndPaginate = () => {
-    let sortedPosts =
-      sortOrder.value === "asc"
-        ? allPosts.value.sort((a, b) => a.id - b.id)
-        : allPosts.value.sort((a, b) => b.id - a.id);
-
-    const start = (currentPage.value - 1) * postsPerPage;
-    const end = start + postsPerPage;
-
-    posts.value = sortedPosts.slice(start, end);
-
-    // Проверка, последняя ли это страница
-    isLastPage.value =
-      currentPage.value * postsPerPage >= allPosts.value.length;
-  };
-
-  const toggleSortOrder = () => {
-    sortOrder.value = sortOrder.value === "asc" ? "desc" : "asc";
-    sortAndPaginate();
-  };
-
-  const nextPage = () => {
-    if (!isLastPage.value) {
-      currentPage.value++;
-      sortAndPaginate();
-    }
-  };
-
-  const prevPage = () => {
-    if (currentPage.value > 1) {
-      currentPage.value--;
-      sortAndPaginate();
-    }
-  };
-
-  const goToPage = (page: number) => {
-    currentPage.value = page;
-    sortAndPaginate();
+    paginationStore.sortAndPaginate();
   };
 
   const createPost = async (post: Omit<Post, "id">) => {
@@ -75,25 +28,14 @@ export const usePostsStore = defineStore("posts", () => {
       body: JSON.stringify(post),
     });
     const newPost = await response.json();
-    allPosts.value.unshift(newPost); // Добавляем новый пост в начало
-    sortAndPaginate(); // Обновляем список постов
+    allPosts.value.unshift(newPost);
+    paginationStore.sortAndPaginate(); // Обновляем список постов
   };
 
   return {
-    posts,
     loading,
-    currentPage,
-    isLastPage,
     fetchAllPosts,
     allPosts,
-    postsPerPage,
-    nextPage,
-    prevPage,
-    toggleSortOrder,
-    sortOrder,
-    goToPage,
     createPost,
-    showModal,
-    newPost,
   };
 });
