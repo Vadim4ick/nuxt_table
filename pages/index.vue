@@ -3,5 +3,7 @@
     <h1 class="text-3xl font-bold text-center">Таблица заявок</h1>
 
     <Table />
+
+    <Modal />
   </div>
 </template>
