@@ -60,6 +60,24 @@ onMounted(async () => {
         >
           Previous
         </button>
+
+        <!-- Пагинация с номерами страниц -->
+        <div class="flex space-x-2">
+          <button
+            v-for="page in 5"
+            :key="page"
+            @click="postsStore.goToPage(page)"
+            :class="[
+              'px-4 py-2 rounded',
+              postsStore.currentPage === page
+                ? 'bg-blue-700 text-white'
+                : 'bg-blue-500 text-white',
+            ]"
+          >
+            {{ page }}
+          </button>
+        </div>
+
         <button
           @click="postsStore.nextPage"
           :disabled="postsStore.isLastPage"

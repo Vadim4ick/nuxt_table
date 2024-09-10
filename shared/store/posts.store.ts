@@ -1,13 +1,16 @@
 import { defineStore } from "pinia";
 import { ref } from "vue";
+import type { Post, Sort } from "../types";
 
 export const usePostsStore = defineStore("posts", () => {
-  const allPosts = ref([]);
-  const posts = ref([]);
-  const loading = ref(false);
+  const allPosts = ref<Post[]>([]);
+  const posts = ref<Post[]>([]);
+
   const currentPage = ref(1);
   const postsPerPage = 10;
-  const sortOrder = ref("asc");
+
+  const loading = ref(false);
+  const sortOrder = ref<Sort>("asc");
   const isLastPage = ref(false);
 
   const fetchAllPosts = async () => {
@@ -19,15 +22,14 @@ export const usePostsStore = defineStore("posts", () => {
   };
 
   const sortAndPaginate = () => {
-    // Сортировка всех постов
     let sortedPosts =
       sortOrder.value === "asc"
         ? allPosts.value.sort((a, b) => a.id - b.id)
         : allPosts.value.sort((a, b) => b.id - a.id);
 
-    // Применение пагинации
     const start = (currentPage.value - 1) * postsPerPage;
     const end = start + postsPerPage;
+
     posts.value = sortedPosts.slice(start, end);
 
     // Проверка, последняя ли это страница
@@ -54,6 +56,11 @@ export const usePostsStore = defineStore("posts", () => {
     }
   };
 
+  const goToPage = (page: number) => {
+    currentPage.value = page;
+    sortAndPaginate();
+  };
+
   return {
     posts,
     loading,
@@ -64,5 +71,6 @@ export const usePostsStore = defineStore("posts", () => {
     prevPage,
     toggleSortOrder,
     sortOrder,
+    goToPage,
   };
 });
