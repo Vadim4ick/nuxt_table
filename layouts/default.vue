@@ -2,10 +2,14 @@
 import { usePostsStore } from "@/shared/store/posts";
 
 const postsStore = usePostsStore();
+
+onMounted(async () => {
+  await postsStore.fetchAllPosts();
+});
 </script>
 
 <template>
-  <Loader v-if="postsStore.loading" />
+  <UiLoader v-if="postsStore.loading" />
 
   <section v-else style="min-height: 100vh">
     <slot />
