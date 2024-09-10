@@ -42,7 +42,7 @@ onMounted(async () => {
 <template>
   <div class="container mx-auto px-4 py-6">
     <button
-      @click="showModal = true"
+      @click="postsStore.showModal = true"
       class="bg-green-500 text-white ml-auto flex px-4 py-2 rounded mb-4"
     >
       Add New Post

@@ -6,6 +6,10 @@ export const usePostsStore = defineStore("posts", () => {
   const allPosts = ref<Post[]>([]);
   const posts = ref<Post[]>([]);
 
+  // Состояние для модального окна
+  const showModal = ref(false);
+  const newPost = ref<{ title: string; body: string }>({ title: "", body: "" });
+
   const currentPage = ref(1);
   const postsPerPage = 10;
 
@@ -62,6 +66,19 @@ export const usePostsStore = defineStore("posts", () => {
     sortAndPaginate();
   };
 
+  const createPost = async (post: Omit<Post, "id">) => {
+    const response = await fetch(`https://jsonplaceholder.typicode.com/posts`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(post),
+    });
+    const newPost = await response.json();
+    allPosts.value.unshift(newPost); // Добавляем новый пост в начало
+    sortAndPaginate(); // Обновляем список постов
+  };
+
   return {
     posts,
     loading,
@@ -75,5 +92,8 @@ export const usePostsStore = defineStore("posts", () => {
     toggleSortOrder,
     sortOrder,
     goToPage,
+    createPost,
+    showModal,
+    newPost,
   };
 });
