@@ -28,7 +28,13 @@ export const usePostsStore = defineStore("posts", () => {
       body: JSON.stringify(post),
     });
     const newPost = await response.json();
-    allPosts.value.unshift(newPost);
+
+    const maxId = Math.max(...allPosts.value.map((p) => p.id));
+    const newId = maxId + 1;
+
+    const newPostWithId = { ...newPost, id: newId };
+
+    allPosts.value.unshift(newPostWithId);
     paginationStore.sortAndPaginate(); // Обновляем список постов
   };
 
